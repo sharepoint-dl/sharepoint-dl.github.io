@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta
+            name="description"
+            content="Create a ZIP from a public OneDrive or SharePoint folder." />
+        <title>Quick Download</title>
+        <link rel="stylesheet" href="style.css" />
+        <script defer src="script.js"></script>
+    </head>
+    <body>
+        <main>
+            <div class="icon" aria-hidden="true">↓</div>
+            <h1>Download a shared folder</h1>
+            <p>
+                Paste a public OneDrive or SharePoint folder link. We’ll fetch
+                its files and return one ZIP.
+            </p>
+            <form id="download-form">
+                <label for="share-link">Public folder link</label>
+                <div class="row">
+                    <input
+                        id="share-link"
+                        type="url"
+                        inputmode="url"
+                        autocomplete="url"
+                        placeholder="https://..."
+                        required />
+                    <button type="submit">Create ZIP</button>
+                </div>
+                <p id="message" role="status" aria-live="polite"></p>
+            </form>
+            <p class="note">
+                Only links that open without signing in are supported. Large
+                folders can take a few minutes; keep this tab open while the ZIP
+                is prepared.
+            </p>
+        </main>
+    </body>
+</html>
