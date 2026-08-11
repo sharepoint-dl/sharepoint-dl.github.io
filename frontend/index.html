@@ -1,42 +1,85 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta
-            name="description"
-            content="Create a ZIP from a public OneDrive or SharePoint folder." />
-        <title>Quick Download</title>
-        <link rel="stylesheet" href="style.css" />
-        <script defer src="script.js"></script>
-    </head>
-    <body>
-        <main>
-            <div class="icon" aria-hidden="true">↓</div>
-            <h1>Download a shared folder</h1>
-            <p>
-                Paste a public OneDrive or SharePoint folder link. We’ll fetch
-                its files and return one ZIP.
-            </p>
-            <form id="download-form">
-                <label for="share-link">Public folder link</label>
-                <div class="row">
-                    <input
-                        id="share-link"
-                        type="url"
-                        inputmode="url"
-                        autocomplete="url"
-                        placeholder="https://..."
-                        required />
-                    <button type="submit">Create ZIP</button>
-                </div>
-                <p id="message" role="status" aria-live="polite"></p>
-            </form>
-            <p class="note">
-                Only links that open without signing in are supported. Large
-                folders can take a few minutes; keep this tab open while the ZIP
-                is prepared.
-            </p>
-        </main>
-    </body>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Create a ZIP from a public OneDrive or SharePoint folder."
+    />
+    <title>Quick Download</title>
+    <link rel="stylesheet" href="style.css" />
+    <script defer src="script.js"></script>
+  </head>
+  <body>
+    <main>
+      <div class="icon" aria-hidden="true">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="32"
+          height="32"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="7 10 12 15 17 10" />
+          <line x1="12" x2="12" y1="15" y2="3" />
+        </svg>
+      </div>
+      <h1>Download a shared folder</h1>
+      <p>
+        Paste a public OneDrive or SharePoint folder link. We’ll fetch its files
+        and return one ZIP.
+      </p>
+      <form id="download-form">
+        <label for="share-link">Public folder link</label>
+        <div class="row">
+          <input
+            id="share-link"
+            type="url"
+            inputmode="url"
+            autocomplete="url"
+            placeholder="https://..."
+            required
+            aria-describedby="message"
+          />
+          <button type="submit">
+            <span id="btn-text">Create ZIP</span>
+            <div id="btn-spinner" class="spinner" hidden></div>
+          </button>
+        </div>
+        <p id="message" role="status" aria-live="polite"></p>
+      </form>
+
+      <details class="faq">
+        <summary>How it works</summary>
+        <div class="faq-content">
+          <p>
+            <strong>Why do I need a public link?</strong><br />
+            The tool downloads files without requiring an account. If a link
+            asks for a sign-in, the tool cannot access it.
+          </p>
+          <p>
+            <strong>How long does it take?</strong><br />
+            It depends on the folder size. Small folders are nearly instant;
+            large ones can take several minutes.
+          </p>
+          <p>
+            <strong>Is my data safe?</strong><br />
+            The server creates a temporary ZIP and deletes it immediately after
+            the download finishes. No files are stored permanently.
+          </p>
+        </div>
+      </details>
+
+      <p class="note">
+        Only links that open without signing in are supported. Large folders can
+        take a few minutes; keep this tab open while the ZIP is prepared.
+      </p>
+    </main>
+  </body>
 </html>
