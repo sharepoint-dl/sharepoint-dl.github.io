@@ -1,43 +1,92 @@
-# Developer Guide: Public Folder ZIP Downloader (Web)
+# Developer Guide — Public Folder ZIP Downloader
 
-## System Architecture
+## Architecture
 
-The web application consists of two main parts:
+```text
+Browser → static frontend → POST /api/download → FastAPI backend
+                                              → public OneDrive/SharePoint folder
+Browser ← streamed ZIP    ← temporary ZIP     ← temporary downloaded files
+```
 
-1. **Frontend**: A static HTML/CSS/JS site hosted on GitHub Pages.
-2. **Backend**: A Python API hosted on Render.
+The frontend is plain HTML, CSS, and JavaScript. The backend is a FastAPI service that downloads a public folder, creates a ZIP, streams it to the client, and removes temporary data after the response completes.
 
-### Workflow
+## Repository layout
 
-1. The frontend sends a POST request to `/api/download` with the shared folder URL.
-2. The backend uses the `downloader.py` logic to:
-   - Validate the URL.
-   - Fetch the public folder's contents.
-   - Download files to a temporary directory.
-   - Create a ZIP archive of those files.
-3. The backend streams the ZIP file back to the user's browser as a blob.
-4. The temporary files are deleted immediately after the response.
+| Path                    | Purpose                                                    |
+| ----------------------- | ---------------------------------------------------------- |
+| `frontend/`             | Static site for GitHub Pages or another static host.       |
+| `frontend/script.js`    | Browser validation and the configured `BACKEND_URL`.       |
+| `backend/main.py`       | FastAPI app, CORS, limits, and HTTP endpoints.             |
+| `backend/downloader.py` | Public-folder discovery, download logic, and ZIP creation. |
+| `backend/.env.example`  | Backend configuration template.                            |
+| `render.yaml`           | Render Blueprint for the backend service.                  |
 
-## Deployment & Configuration
+## Run locally
 
-### Backend (Render)
+### 1. Start the API
 
-The backend is deployed as a Web Service on Render.
+```bash
+cd backend
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env
+uvicorn main:app --reload --port 8000 --env-file .env
+```
 
-- **Runtime**: Python 3.
-- **Dependencies**: Only standard library (dependency-free).
-- **Limits**: To prevent abuse, the `create_download_archive` function enforces:
-  - `max_files`: Maximum number of files per ZIP.
-  - `max_total_bytes`: Maximum total size of the ZIP.
+The API health check is available at `http://localhost:8000/health`.
 
-### Frontend (GitHub Pages)
+### 2. Serve the frontend
 
-The frontend is a simple static site.
+In a second terminal, from the repository root:
 
-- **`BACKEND_URL`**: You must set the `BACKEND_URL` constant in `frontend/script.js` to point to your deployed Render service.
+```bash
+python3 -m http.server 8080 --directory frontend
+```
 
-## Local Development
+Set `BACKEND_URL` in `frontend/script.js` to `http://localhost:8000`, then open `http://localhost:8080`.
 
-1. Run the backend locally using a framework like FastAPI or Flask that wraps the `create_download_archive` function.
-2. Serve the `frontend` folder using a local server (e.g., `python3 -m http.server`).
-3. Update `BACKEND_URL` to `http://localhost:port`.
+## Configuration
+
+Copy `backend/.env.example` to `backend/.env`, or configure these variables in your host. The supplied values are conservative production defaults.
+
+| Variable                   | Meaning                                                                                    | Default |
+| -------------------------- | ------------------------------------------------------------------------------------------ | ------- |
+| `ALLOWED_ORIGINS`          | Comma-separated origins permitted to call the API. Use your exact Pages URL in production. | `*`     |
+| `MAX_CONCURRENT_DOWNLOADS` | Requests allowed to prepare archives concurrently.                                         | `2`     |
+| `MAX_FILES`                | Maximum files in one shared folder.                                                        | `1000`  |
+| `MAX_DOWNLOAD_MB`          | Maximum combined remote-file size, in MB.                                                  | `1024`  |
+| `DOWNLOAD_TIMEOUT_SECONDS` | Timeout per SharePoint request.                                                            | `90`    |
+
+`render.yaml` installs `backend/requirements.txt`, starts Uvicorn, and exposes `/health` for health checks. Set `ALLOWED_ORIGINS` in Render to the URL of the deployed frontend. Then update `BACKEND_URL` in `frontend/script.js` to the public backend URL before publishing the frontend.
+
+## API
+
+### `GET /health`
+
+Returns:
+
+```json
+{ "status": "ok" }
+```
+
+### `POST /api/download`
+
+Request body:
+
+```json
+{ "url": "https://your-public-folder-link" }
+```
+
+On success, returns a `application/zip` download named `sharepoint-download.zip`. Invalid, empty, or limit-exceeding shares return `400`; upstream download failures return `502`.
+
+## Operational notes
+
+- Only public OneDrive and SharePoint folder links are accepted.
+- A semaphore limits concurrent archive creation; tune it to the memory, disk, and bandwidth available to your host.
+- The backend removes the temporary directory only after the ZIP response completes.
+- Configure a specific `ALLOWED_ORIGINS` value in production rather than relying on the permissive development default.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).

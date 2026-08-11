@@ -1,45 +1,58 @@
 # Public Folder ZIP Downloader
 
-Turn a public OneDrive or SharePoint folder into one ZIP download.
+Turn a public OneDrive or SharePoint folder into a single ZIP download.
 
-Paste a shared folder link, click **Create ZIP**, and the site downloads the
-folder and sends the ZIP file back to your browser. You do not need a GitHub or
-Microsoft account to use a deployed instance.
+[Open the website →](https://onedrive-dl.github.io)
 
-## 🚀 How to Use the Tool
+Paste a public folder link, select **Create ZIP**, and the service fetches the folder, packages it, and starts the download in your browser. You do not need a Microsoft or GitHub account to use a deployed instance.
 
-1. **Get your link**: In OneDrive or SharePoint, right-click a folder and select **Share**. Ensure the setting is "Anyone with the link can view."
-2. **Paste the link**: Copy that link and paste it into the input box on the website.
-3. **Create ZIP**: Click the **Create ZIP** button.
-4. **Wait**: The server will fetch the files and package them. For large folders, this may take several minutes. Keep the tab open.
-5. **Download**: Your browser will automatically start the download of `sharepoint-download.zip` once it's ready.
+> Need a repeatable local mirror instead of a ZIP? Use the [OneDrive/SharePoint CLI sync tool](https://github.com/onedrive-dl/onedrive-dl).
 
-## 📖 Documentation
+## Use it in five steps
 
-- 🛠️ **[Developer Guide](DEV_GUIDE.md)**: Local development, deployment, and technical architecture.
+1. In OneDrive or SharePoint, open the folder’s **Share** menu.
+2. Choose **Anyone with the link can view**, then copy the folder link.
+3. Paste the link into the website.
+4. Select **Create ZIP** and keep the tab open while the archive is prepared.
+5. Download `sharepoint-download.zip` when your browser prompts you.
 
-## ❓ Common Questions
+For large folders, preparation can take a few minutes: the server has to retrieve every file before it can create the archive.
 
-### Which links work?
-The folder must be shared **publicly**. If you open the link in a private/incognito browser and it asks you to sign in, the tool cannot access it.
+## What links work?
 
-### Why is it taking so long?
-Large folders with many files require the server to download everything from Microsoft's servers before Zipping them. Please be patient.
+Only public **folder** links work. A quick test: open the link in a private/incognito browser window. If Microsoft asks you to sign in, the service cannot download it.
 
-### Is my data safe?
-Yes. The server does not store your files. It creates a temporary ZIP in memory or a temporary directory and deletes it immediately after the download is completed.
+## Privacy and limits
 
-## ⚙️ How it works
+- Your sharing link and files are not stored permanently.
+- Files are downloaded into a temporary server directory, zipped, and removed after the response finishes.
+- The service has file-count and total-size limits to keep the public endpoint reliable. A deployment can tune these limits through environment variables.
 
-1. **Public Links**: The tool only works with links shared as "Anyone with the link can view."
-2. **Transient Processing**: The server fetches the files, creates a temporary ZIP, and deletes the files immediately after the response finishes.
-3. **No Storage**: Your links and files are never stored permanently on our servers.
+## Run your own instance
 
-## 🛠️ Deployment
+This repository has a static frontend and a Python API:
 
-This project is split into two parts:
+```text
+frontend/  → GitHub Pages or any static host
+backend/   → FastAPI service (Render configuration included)
+```
 
-- **Frontend**: Hosted on GitHub Pages (https://onedrive-dl.github.io).
-- **Backend**: Hosted on Render.
+For complete local setup, deployment, configuration, and API details, read the [Developer Guide](DEV_GUIDE.md).
 
-See the [Developer Guide](DEV_GUIDE.md) for instructions on running your own instance.
+## Troubleshooting
+
+**The service says the link is invalid or inaccessible**
+
+Confirm the link points to a folder and is available to anyone with the link. Re-copy the link from the Share dialog if necessary.
+
+**The archive takes a long time**
+
+The service must download the remote folder before returning the ZIP. Large folders, many small files, and Microsoft rate limits can all increase the wait.
+
+**The request is rejected for size or file count**
+
+The folder exceeds the current deployment’s safety limits. If you operate the service, increase the appropriate backend limit only after considering available disk, bandwidth, and request capacity.
+
+## License
+
+Released under the [MIT License](LICENSE).
