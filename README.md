@@ -2,11 +2,11 @@
 
 Turn a public OneDrive or SharePoint folder into a single ZIP download.
 
-[Open the website →](https://onedrive-dl.github.io)
+[Open the website →](https://sharepoint-dl.github.io)
 
 Paste a public folder link, select **Create ZIP**, and the service fetches the folder, packages it, and starts the download in your browser. You do not need a Microsoft or GitHub account to use a deployed instance.
 
-> Need a repeatable local mirror instead of a ZIP? Use the [OneDrive/SharePoint CLI sync tool](https://github.com/onedrive-dl/onedrive-dl).
+> Need a repeatable local mirror instead of a ZIP? Use the [OneDrive/SharePoint CLI sync tool](https://github.com/sharepoint-dl/sharepoint-dl).
 
 ## Use it in five steps
 
